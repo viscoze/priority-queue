@@ -53,6 +53,7 @@ class Node {
 
 		const parent         = this.parent;
 		const parentOfParent = this.parent.parent;
+		const parentLabel    = this.parent.label;
 
 		const parentAnotherChild = (this.label == "left") ?
 																		this.parent.right :
@@ -60,6 +61,7 @@ class Node {
 
 		this.parent.parent   = this;
 		this.parent          = parentOfParent;
+
 		if (parentAnotherChild) {
 			parentAnotherChild.parent = this;
 
@@ -79,6 +81,8 @@ class Node {
 				parentOfParent.right = this;
 			}
 		}
+
+		this.label   = parentLabel;
 
 		parent.left  = leftChild;
 		parent.right = rightChild;
