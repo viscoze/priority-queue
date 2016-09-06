@@ -7,7 +7,7 @@ class MaxHeap {
 	}
 
 	push(data, priority) {
-		if (!data || !priority) return;
+		if ((data == undefined) || (priority == undefined)) return;
 
 		const node = new Node(data, priority);
 
@@ -16,34 +16,43 @@ class MaxHeap {
 	}
 
 	insertNode(node) {
-		if (!this.root || !this.parentNodes.length) {
-			this.root = node;
-			this.parentNodes.push(node);
+		this.parentNodes.push(node);
+
+		if (this.size() == 1) {
+			this.root = this.parentNodes[0];
 			return;
 		}
 
-		const size   = this.parentNodes.length;
-		const parent = this.parentNodes[size-1];
+		const nodeIndex   = (this.size() - 1);
+		const parentIndex = Math.floor((nodeIndex - 1) / 2);
+		const parent      = this.parentNodes[parentIndex];
+
+		if (!parent) return;
 
 		parent.appendChild(node);
-		this.parentNodes.push(node);
 	}
 
-	shiftNodeUp(node) {
-		if (!node.parent) return;
-		if (node.data > node.parent.data) {
-			node.swapWithParent();
-			this.shiftNodeUp(node);
+	shiftNodeUp(node, nodeIndex) {
+		if (this.size() == 1) return;
+
+		nodeIndex = nodeIndex || (this.size() - 1);
+
+		const parentIndex = Math.floor((nodeIndex - 1) / 2);
+		const parent      = this.parentNodes[parentIndex];
+
+		if (nodeIndex > 0) {
+			if (parent.priority < node.priority) {
+				if (parentIndex == 0) {
+					this.root = node;
+				}
+
+				this.parentNodes[parentIndex] = node;
+				this.parentNodes[nodeIndex]   = parent;
+
+				node.swapWithParent();
+				this.shiftNodeUp(node, parentIndex);
+			}
 		}
-
-		const parent      = node.parent;
-		const parentIndex = this.parentNodes.findIndex((n) => n == parent);
-		const childIndex  = (node.label == 'left') ?
-												(2 * parentIndex + 1)  :
-												(2 * parentIndex + 2);
-
-		this.parentNodes[childIndex] = node;
-		return;
 	}
 
 	shiftNodeDown(node) {
@@ -51,18 +60,41 @@ class MaxHeap {
 	}
 
 	pop() {
+		if (!this.root) return;
 
+		const root = this.root;
+		const data = this.root.data;
+
+		const detachedRoot = this.detachRoot();
+		this.restoreRootFromLastInsertedNode(detachedRoot);
+		this.shiftNodeDown(root);
+
+		return data;
 	}
 
 	detachRoot() {
-		const root = this.root;
+		const root = this.parentNodes.shift();
 		this.root  = null;
 
 		return root;
 	}
 
 	restoreRootFromLastInsertedNode(detached) {
+		if (this.isEmpty()) return;
 
+		const leftChild  = detached.left;
+		const rightChild = detached.right;
+
+		const lastInsertedNode  = this.parentNodes.pop();
+		lastInsertedNode.left   = leftChild;
+		lastInsertedNode.right  = rightChild;
+
+		this.root = lastInsertedNode;
+
+		if (leftChild)  leftChild.parent  = lastInsertedNode;
+		if (rightChild) rightChild.parent = lastInsertedNode;
+
+		this.parentNodes.unshift(lastInsertedNode);
 	}
 
 	size() {
