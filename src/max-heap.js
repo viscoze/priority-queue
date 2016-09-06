@@ -30,12 +30,17 @@ class MaxHeap {
 		if (!parent) return;
 
 		parent.appendChild(node);
+
+		// console.log("#insertNode", "Parent: ", parent.data, "Node: ", node.data);
+		// console.log(this.parentNodes);
 	}
 
 	shiftNodeUp(node, nodeIndex) {
 		if (this.size() == 1) return;
 
-		nodeIndex = nodeIndex || (this.size() - 1);
+		if (nodeIndex == undefined) {
+			nodeIndex = (this.size() - 1);
+		}
 
 		const parentIndex = Math.floor((nodeIndex - 1) / 2);
 		const parent      = this.parentNodes[parentIndex];
@@ -50,6 +55,10 @@ class MaxHeap {
 				this.parentNodes[nodeIndex]   = parent;
 
 				node.swapWithParent();
+
+				// console.log("#shiftNodeUp", "Parent: ", parent.data, "Node: ", node.data);
+				// console.log(this.parentNodes);
+
 				this.shiftNodeUp(node, parentIndex);
 			}
 		}
@@ -110,5 +119,15 @@ class MaxHeap {
 		this.parentNodes = [];
 	}
 }
+
+// const heap = new MaxHeap();
+// heap.push(0,10);
+// heap.push(1,5);
+// heap.push(2,7);
+// heap.push(3,20);
+//
+// console.log("=======================");
+// console.log(heap.parentNodes);
+// console.log("=======================");
 
 module.exports = MaxHeap;

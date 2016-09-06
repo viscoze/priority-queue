@@ -67,11 +67,17 @@ class Node {
 
 			if (parentAnotherChild.label == "right") {
 				this.right = parentAnotherChild;
-				this.left  = parent;
 			} else {
 				this.left  = parentAnotherChild;
-				this.right = parent;
 			}
+		}
+
+		if (this.label == "right") {
+			this.right = parent;
+		}
+
+		if (this.label == "left") {
+			this.left = parent;
 		}
 
 		if (parentOfParent) {
@@ -82,7 +88,9 @@ class Node {
 			}
 		}
 
+		const label  = this.label;
 		this.label   = parentLabel;
+		parent.label = label;
 
 		parent.left  = leftChild;
 		parent.right = rightChild;
