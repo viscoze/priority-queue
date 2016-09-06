@@ -5,98 +5,85 @@ class Node {
 
 		this.parent   = null;
 		this.left     = null;
-		this.right    = null;
-		this.label    = "root";
+		this.right	  = null;
 	}
 
 	appendChild(node) {
-		if (this.left && this.right) return;
+		if (!node) return;
 
-		if (this.left) {
-			this.right        = node;
-			this.right.label  = "right";
-			this.right.parent = this;
-		} else {
-			this.left        = node;
-			this.left.label  = "left";
-			this.left.parent = this;
+		if(!this.left) {
+			this.left   = node;
+			node.parent = this;
+			return;
+		}
+
+		if(!this.right)	{
+			this.right  = node;
+			node.parent = this;
+			return;
 		}
 	}
 
 	removeChild(node) {
-		if (node === this.left) {
-			this.left.parent = null;
-			this.left = null;
+		if (this.left === node) {
+			this.left   = null;
+			node.parent = null;
 			return;
 		}
 
-		if (node === this.right) {
-			this.right.parent = null;
-			this.right = null;
+		if (this.right === node) {
+			this.right  = null;
+			node.parent = null;
 			return;
 		}
 
-		throw new Error("This node does not belong!");
+		throw new Error("Error removeChild");
 	}
 
 	remove() {
-		if (!this.parent) return;
-
-		this.parent.removeChild(this);
+		if (this.parent) this.parent.removeChild(this);
 	}
 
 	swapWithParent() {
 		if (!this.parent) return;
 
-		const rightChild     = this.right;
-		const leftChild      = this.left;
+		const parentOfParent   = this.parent.parent;
+		const parent           = this.parent;
+		const leftChild        = this.left;
+		const rightChild       = this.right;
+		const parentLeftChild  = parent.left;
+		const parentRightChild = parent.right;
 
-		const parent         = this.parent;
-		const parentOfParent = this.parent.parent;
-		const parentLabel    = this.parent.label;
+		if (leftChild)  leftChild.remove();
+		if (rightChild) rightChild.remove();
 
-		const parentAnotherChild = (this.label == "left") ?
-																		this.parent.right :
-																		this.parent.left;
+		parent.remove();
 
-		this.parent.parent   = this;
-		this.parent          = parentOfParent;
+		if (this === parentLeftChild) {
+			this.remove();
+			this.appendChild(parent);
 
-		if (parentAnotherChild) {
-			parentAnotherChild.parent = this;
-
-			if (parentAnotherChild.label == "right") {
-				this.right = parentAnotherChild;
-			} else {
-				this.left  = parentAnotherChild;
+			if (parentRightChild) {
+				parentRightChild.remove();
+				this.appendChild(parentRightChild);
 			}
 		}
 
-		if (this.label == "right") {
-			this.right = parent;
-		}
+		if (this === parentRightChild) {
+			this.remove();
 
-		if (this.label == "left") {
-			this.left = parent;
-		}
-
-		if (parentOfParent) {
-			if (parent.label == "left") {
-				parentOfParent.left = this;
-			} else {
-				parentOfParent.right = this;
+			if (parentLeftChild) {
+				parentLeftChild.remove();
+				this.appendChild(parentLeftChild);
 			}
+
+			this.appendChild(parent);
 		}
 
-		const label  = this.label;
-		this.label   = parentLabel;
-		parent.label = label;
+		parent.appendChild(leftChild);
+		parent.appendChild(rightChild);
 
-		parent.left  = leftChild;
-		parent.right = rightChild;
-
-		if (parent.left)  parent.left.parent  = parent;
-		if (parent.right) parent.right.parent = parent;
+		if (parentOfParent) parentOfParent.appendChild(this);
 	}
 }
 
