@@ -16,23 +16,20 @@ class MaxHeap {
 	}
 
 	insertNode(node) {
-		this.parentNodes.push(node);
-
-		if (this.size() == 1) {
-			this.root = this.parentNodes[0];
+		if (!this.size()) {
+			this.root = node;
 			return;
 		}
 
+		this.parentNodes.push(node);
+
 		const nodeIndex   = (this.size() - 1);
 		const parentIndex = Math.floor((nodeIndex - 1) / 2);
-		const parent      = this.parentNodes[parentIndex];
-
-		if (!parent) return;
+		const parent      = (parentIndex >= 0) ?
+						 this.parentNodes[parentIndex] :
+						 this.root;
 
 		parent.appendChild(node);
-
-		// console.log("#insertNode", "Parent: ", parent.data, "Node: ", node.data);
-		// console.log(this.parentNodes);
 	}
 
 	shiftNodeUp(node, nodeIndex) {
@@ -43,22 +40,24 @@ class MaxHeap {
 		}
 
 		const parentIndex = Math.floor((nodeIndex - 1) / 2);
-		const parent      = this.parentNodes[parentIndex];
+		const parent      = (parentIndex >= 0) ?
+						 this.parentNodes[parentIndex] :
+						 this.root;
 
 		if (nodeIndex > 0) {
 			if (parent.priority < node.priority) {
-				if (parentIndex == 0) {
+				if (parent.label == "root") {
 					this.root = node;
+					this.parentNodes[nodeIndex] = parent;
+
+					node.swapWithParent();
+					return;
 				}
 
 				this.parentNodes[parentIndex] = node;
 				this.parentNodes[nodeIndex]   = parent;
 
 				node.swapWithParent();
-
-				// console.log("#shiftNodeUp", "Parent: ", parent.data, "Node: ", node.data);
-				// console.log(this.parentNodes);
-
 				this.shiftNodeUp(node, parentIndex);
 			}
 		}
